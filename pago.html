@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Máquina de pago</title>
+  <style>
+    :root{
+      --bg:#0e0f12;
+      --panel:#181a20;
+      --accent:#e53935;
+      --accent-2:#43a047;
+      --text:#f5f5f5;
+      --muted:#9aa0a6;
+      --border:#2a2d36;
+      --warn:#fbbc05;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:linear-gradient(135deg, #0b0c10, #1f2833);
+      font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:100vh;
+      padding:20px;
+    }
+    .pos{
+      width: 360px;
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:16px;
+      box-shadow:0 10px 30px rgba(0,0,0,.35);
+      overflow:hidden;
+    }
+    .pos-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:14px 16px;
+      background:#12141a;
+      border-bottom:1px solid var(--border);
+    }
+    .pos-header h1{
+      font-size:16px;
+      margin:0;
+      letter-spacing:.5px;
+    }
+    .status-dot{
+      width:10px;height:10px;border-radius:50%;
+      background:var(--accent-2);
+      box-shadow:0 0 8px var(--accent-2);
+    }
+
+    .screen{
+      padding:16px;
+    }
+    .amount-display{
+      background:#0f1117;
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .amount-label{color:var(--muted);font-size:12px}
+    .amount-value{
+      font-size:28px;
+      font-weight:700;
+      letter-spacing:.5px;
+    }
+
+    .method{
+      margin-top:14px;
+      background:#0f1117;
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:12px;
+    }
+    .method h3{margin:0 0 8px 0; font-size:14px; color:var(--muted)}
+    .method-options{
+      display:flex; gap:8px;
+    }
+    .chip{
+      flex:1;
+      background:#151823;
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:10px;
+      text-align:center;
+      cursor:pointer;
+      transition:.2s ease;
+      user-select:none;
+    }
+    .chip:hover{border-color:#3a3f4b}
+    .chip.active{
+      border-color:var(--accent);
+      box-shadow:0 0 0 2px rgba(229,57,53,.15) inset;
+    }
+
+    .keypad{
+      display:grid;
+      grid-template-columns:repeat(3, 1fr);
+      gap:8px;
+      margin-top:16px;
+    }
+    .key{
+      background:#151823;
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:14px 0;
+      font-size:18px;
+      text-align:center;
+      cursor:pointer;
+      transition:.15s ease;
+      user-select:none;
+    }
+    .key:hover{border-color:#3a3f4b}
+    .key.action{background:#132014}
+    .key.clear{background:#1b1414}
+    .key.primary{
+      grid-column:span 3;
+      background:var(--accent);
+      border-color:#b71c1c;
+      font-weight:700;
+    }
+    .key.primary:disabled{
+      opacity:.55; cursor:not-allowed;
+    }
+
+    .details{
+      margin-top:12px;
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+    }
+    .input{
+      display:flex; gap:8px; align-items:center;
+      background:#0f1117;
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:10px;
+    }
+    .input label{color:var(--muted); font-size:12px; min-width:80px}
+    .input input{
+      flex:1;
+      background:transparent;
+      border:none;
+      outline:none;
+      color:var(--text);
+      font-size:14px;
+    }
+    .tip{
+      font-size:12px;
+      color:var(--warn);
+    }
+
+    .processing{
+      display:none;
+      margin-top:14px;
+      background:#111418;
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:12px;
+    }
+    .loader{
+      width:100%; height:4px; background:#0f1117; border-radius:6px; overflow:hidden;
+    }
+    .loader > span{
+      display:block; height:100%; width:35%;
+      background:linear-gradient(90deg, var(--accent), #ff6b6b);
+      animation:load 1s infinite linear;
+    }
+    @keyframes load{
+      0%{transform:translateX(-100%)}
+      100%{transform:translateX(300%)}
+    }
+    .processing p{margin:10px 0 0 0; color:var(--muted); font-size:13px}
+
+    .receipt{
+      display:none;
+      margin:16px; background:#101316;
+      border:1px dashed #3a3f4b; border-radius:12px;
+      padding:14px;
+    }
+    .receipt h4{margin:0 0 8px 0; font-size:14px}
+    .receipt-row{
+      display:flex; justify-content:space-between;
+      border-bottom:1px dashed #2a2d36; padding:6px 0;
+    }
+    .receipt-actions{display:flex; gap:8px; margin-top:12px}
+    .btn{
+      padding:10px 12px; border-radius:10px;
+      border:1px solid var(--border); background:#151823;
+      color:var(--text); cursor:pointer; transition:.15s;
+    }
+    .btn:hover{border-color:#3a3f4b}
+    .btn.secondary{background:#111418}
+    .btn.accent{background:var(--accent); border-color:#b71c1c; font-weight:700}
+  </style>
+</head>
+<body>
+  <div class="pos">
+    <div class="pos-header">
+      <h1>Terminal de pago</h1>
+      <span class="status-dot" title="Conectado"></span>
+    </div>
+
+    <div class="screen">
+      <!-- Monto -->
+      <div class="amount-display">
+        <div>
+          <div class="amount-label">Monto</div>
+          <div id="amount" class="amount-value">$ 0</div>
+        </div>
+        <button id="clearAll" class="btn secondary" aria-label="Borrar monto">Borrar</button>
+      </div>
+
+      <!-- Método de pago -->
+      <div class="method">
+        <h3>Método de pago</h3>
+        <div class="method-options">
+          <div class="chip active" data-method="tarjeta">Tarjeta</div>
+          <div class="chip" data-method="efectivo">Efectivo</div>
+          <div class="chip" data-method="qr">QR</div>
+        </div>
+      </div>
+
+      <!-- Detalles (solo tarjeta/QR visibles según método) -->
+      <div class="details">
+        <div class="input" id="cardRow">
+          <label>Número tarjeta</label>
+          <input id="card" type="text" inputmode="numeric" placeholder="1234 5678 9012 3456" maxlength="19"/>
+        </div>
+        <div class="input" id="nameRow">
+          <label>Nombre</label>
+          <input id="name" type="text" placeholder="Nombre del titular"/>
+        </div>
+        <div class="input" id="expRow">
+          <label>Expira</label>
+          <input id="exp" type="text" inputmode="numeric" placeholder="MM/AA" maxlength="5"/>
+        </div>
+        <div class="input" id="cvvRow">
+          <label>CVV</label>
+          <input id="cvv" type="password" inputmode="numeric" placeholder="***" maxlength="4"/>
+        </div>
+        <div class="tip" id="hint">Ingresa los datos para continuar. No compartas información real fuera de entornos seguros.</div>
+      </div>
+
+      <!-- Teclado numérico -->
+      <div class="keypad" aria-label="Teclado numérico">
+        <div class="key">1</div>
+        <div class="key">2</div>
+        <div class="key">3</div>
+        <div class="key">4</div>
+        <div class="key">5</div>
+        <div class="key">6</div>
+        <div class="key">7</div>
+        <div class="key">8</div>
+        <div class="key">9</div>
+        <div class="key clear">⌫</div>
+        <div class="key">0</div>
+        <div class="key action">,00</div>
+        <button id="payBtn" class="key primary" disabled>Pagar</button>
+      </div>
+
+      <!-- Procesando -->
+      <div class="processing" id="processing">
+        <div class="loader"><span></span></div>
+        <p>Procesando pago... Esto puede tardar unos segundos.</p>
+      </div>
+    </div>
+
+    <!-- Recibo -->
+    <div class="receipt" id="receipt">
+      <h4>Recibo</h4>
+      <div class="receipt-row"><span>Monto</span><strong id="rAmount">$ 0</strong></div>
+      <div class="receipt-row"><span>Método</span><strong id="rMethod">—</strong></div>
+      <div class="receipt-row"><span>Autorización</span><strong id="rAuth">—</strong></div>
+      <div class="receipt-row"><span>Fecha</span><strong id="rDate">—</strong></div>
+      <div class="receipt-actions">
+        <button class="btn" id="newPayment">Nuevo pago</button>
+        <button class="btn accent" id="download">Descargar PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Estado
+    let rawAmount = 0;
+    let method = 'tarjeta';
+
+    const amountEl = document.getElementById('amount');
+    const payBtn = document.getElementById('payBtn');
+    const processingEl = document.getElementById('processing');
+    const receiptEl = document.getElementById('receipt');
+
+    const rAmount = document.getElementById('rAmount');
+    const rMethod = document.getElementById('rMethod');
+    const rAuth = document.getElementById('rAuth');
+    const rDate = document.getElementById('rDate');
+
+    const chipEls = document.querySelectorAll('.chip');
+    const keys = document.querySelectorAll('.keypad .key');
+    const clearAll = document.getElementById('clearAll');
+
+    const card = document.getElementById('card');
+    const nameInput = document.getElementById('name');
+    const exp = document.getElementById('exp');
+    const cvv = document.getElementById('cvv');
+
+    const cardRow = document.getElementById('cardRow');
+    const nameRow = document.getElementById('nameRow');
+    const expRow = document.getElementById('expRow');
+    const cvvRow = document.getElementById('cvvRow');
+    const hint = document.getElementById('hint');
+
+    // Formatear monto
+    function formatAmount(value){
+      const v = Math.max(0, value);
+      return '$ ' + v.toLocaleString('es-CO');
+    }
+    function updateAmount(){
+      amountEl.textContent = formatAmount(rawAmount);
+      validateReady();
+    }
+
+    // Teclado
+    keys.forEach(k=>{
+      if(k.id==='payBtn') return;
+      k.addEventListener('click',()=>{
+        const t = k.textContent.trim();
+        if(t==='⌫'){
+          rawAmount = Math.floor(rawAmount/10);
+        } else if(t===',00'){
+          rawAmount = rawAmount*100; // añade centavos
+        } else {
+          rawAmount = rawAmount*10 + Number(t);
+        }
+        updateAmount();
+      });
+    });
+
+    clearAll.addEventListener('click',()=>{
+      rawAmount = 0; updateAmount();
+    });
+
+    // Método de pago
+    chipEls.forEach(c=>{
+      c.addEventListener('click',()=>{
+        chipEls.forEach(x=>x.classList.remove('active'));
+        c.classList.add('active');
+        method = c.dataset.method;
+        toggleFieldsByMethod(method);
+        validateReady();
+      });
+    });
+
+    function toggleFieldsByMethod(m){
+      const showCard = (m==='tarjeta' || m==='qr');
+      cardRow.style.display = showCard ? 'flex' : 'none';
+      nameRow.style.display = showCard ? 'flex' : 'none';
+      expRow.style.display = showCard ? 'flex' : 'none';
+      cvvRow.style.display = showCard ? 'flex' : 'none';
+      hint.textContent = showCard
+        ? 'Completa los datos de pago.'
+        : 'Pagarás en efectivo. Confirma el monto y presiona Pagar.';
+    }
+
+    // Formato de tarjeta y fecha
+    card.addEventListener('input',()=>{
+      let v = card.value.replace(/\D/g,'').slice(0,16);
+      v = v.replace(/(.{4})/g,'$1 ').trim();
+      card.value = v;
+      validateReady();
+    });
+    exp.addEventListener('input',()=>{
+      let v = exp.value.replace(/\D/g,'').slice(0,4);
+      if(v.length>=3) v = v.slice(0,2) + '/' + v.slice(2);
+      exp.value = v;
+      validateReady();
+    });
+    nameInput.addEventListener('input', validateReady);
+    cvv.addEventListener('input', validateReady);
+
+    // Validación básica
+    function isCardValid(){
+      if(method==='efectivo') return true;
+      const num = card.value.replace(/\s/g,'');
+      const mm = exp.value.split('/')[0];
+      const yy = exp.value.split('/')[1];
+      const okNum = num.length>=13;
+      const okName = nameInput.value.trim().length>=3;
+      const okExp = mm && yy && Number(mm)>=1 && Number(mm)<=12 && yy.length===2;
+      const okCvv = cvv.value.trim().length>=3;
+      return okNum && okName && okExp && okCvv;
+    }
+    function validateReady(){
+      const ready = rawAmount>0 && isCardValid();
+      payBtn.disabled = !ready;
+    }
+
+    // Simular pago
+    payBtn.addEventListener('click', async ()=>{
+      processingEl.style.display = 'block';
+      payBtn.disabled = true;
+
+      await new Promise(r=>setTimeout(r, 1500)); // simulación de proceso
+
+      processingEl.style.display = 'none';
+      const auth = 'AP-' + Math.random().toString(36).slice(2,8).toUpperCase();
+
+      // Mostrar recibo
+      rAmount.textContent = formatAmount(rawAmount);
+      rMethod.textContent = method.toUpperCase();
+      rAuth.textContent = auth;
+      rDate.textContent = new Date().toLocaleString('es-CO');
+
+      receiptEl.style.display = 'block';
+      // “Reset” básico del formulario (mantén método)
+      rawAmount = 0; updateAmount();
+      if(method!=='efectivo'){
+        card.value=''; nameInput.value=''; exp.value=''; cvv.value='';
+      }
+    });
+
+    // Recibo acciones
+    document.getElementById('newPayment').addEventListener('click',()=>{
+      receiptEl.style.display = 'none';
+    });
+
+    document.getElementById('download').addEventListener('click',()=>{
+      const content = `
+Recibo - Terminal de pago
+-------------------------
+Monto: ${rAmount.textContent}
+Método: ${rMethod.textContent}
+Autorización: ${rAuth.textContent}
+Fecha: ${rDate.textContent}
+`;
+      const blob = new Blob([content], {type:'text/plain'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'recibo.txt'; // sencillo: TXT. Puedes integrar PDF real con librerías externas.
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    // Arranque
+    toggleFieldsByMethod(method);
+    updateAmount();
+  </script>
+</body>
+</html>

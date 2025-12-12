@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Carros de Fórmula 1</title>
+
+<style>
+/* --------------------------- */
+/*          ESTILOS F1         */
+/* --------------------------- */
+
+body {
+  background: #111111;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Título */
+h1 {
+  text-align: center;
+  font-size: 32px;
+  color: #ffffff;
+  margin: 25px 0;
+  border-bottom: 2px solid #5d3d3c04;
+  padding-bottom: 8px;
+}
+
+/* Grilla de carros */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.card {
+  background: #1c1c1c48;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+}
+
+.card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.card .content {
+  padding: 15px;
+}
+
+.card h2 {
+  margin: 0;
+  color: #ffffff;
+}
+
+.card p {
+  color: #ccc;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.price {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.card button {
+  background: #e10600;
+  border: none;
+  padding: 8px 12px;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.card button:hover {
+  background: #b30500;
+}
+
+/* --------------------------- */
+/*  BOTÓN FLOTANTE DEL CARRITO */
+/* --------------------------- */
+#floatingCartBtn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #e10600;
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.208);
+  transition: transform 0.2s ease;
+  z-index: 999;
+}
+
+#floatingCartBtn:hover {
+  transform: scale(1.1);
+}
+
+/* --------------------------- */
+/* SIDEBAR DEL CARRITO         */
+/* --------------------------- */
+
+#floatingCart {
+  position: fixed;
+  top: 0;
+  right: -350px;
+  width: 300px;
+  height: 100%;
+  background: #1e1e1e32;
+  color: white;
+  padding: 20px;
+  box-shadow: -4px 0 10px rgba(0,0,0,0.4);
+  transition: right 0.3s ease;
+  z-index: 999;
+}
+
+#floatingCart h2 {
+  text-align: center;
+  margin-top: 0;
+  color: #e10600;
+}
+
+#floatingCart ul {
+  list-style: none;
+  padding: 0;
+  height: 70%;
+  overflow-y: auto;
+}
+
+#floatingCart li {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px dashed #444;
+}
+
+#floatingCart li button {
+  background: transparent;
+  border: none;
+  color: #e10600;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#cartTotal {
+  font-size: 18px;
+  font-weight: bold;
+  text-align: right;
+}
+
+#checkoutBtn {
+  width: 100%;
+  margin-top: 15px;
+  background: #e10600;
+  border: none;
+  color: #fff;
+  padding: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+#checkoutBtn:hover {
+  background: #b30500;
+}
+
+
+body {
+    /* Aquí va la URL de tu imagen */
+    background-image: url('https://www.grandepremio.com.br/wp-content/uploads/2025/02/CARRO-FERRARI2-2048x1152.jpg');
+    /* Para que la imagen ocupe toda la pantalla */
+    background-size: cover; /* 'cover' para que cubra el área */
+    background-repeat: no-repeat; /* No se repita */
+    background-position: center; /* Centrada */
+    background-attachment: fixed; /* Fija al hacer scroll */
+    /* Asegura que el cuerpo ocupe toda la altura de la ventana */
+    min-height: 100vh;
+    margin: 0;
+  }
+</style>
+
+</head>
+<body>
+
+<h1>🏎️𓂀 ℭ𝔄ℜℜ𝔒𝔖 𝔇𝔈 𝔉𝔒ℜ𝔐𝔘𝔏𝔄 1 𓂀</h1>
+
+<section class="grid">
+
+  <article class="card">
+    <img src="https://www.novitecgroup.com/assets/images/news/ferrari/sf90/1__FitMaxWzEyODAsMTAyNF0.jpg"/>
+    <div class="content">
+      <h2>Ferrari SF90</h2>
+      <p>Motor V6 híbrido • Velocidad punta</p>
+      <div class="row">
+        <span class="price">$299.000</span>
+        <button onclick="addToCart('Ferrari SF90',299000)">Agregar</button>
+      </div>
+    </div>
+  </article>
+
+  <article class="card">
+    <img src="https://i0.wp.com/infopits.mx/wp-content/uploads/2020/02/mercedes-03-200214.jpg?fit=1200%2C800&ssl=1"/>
+    <div class="content">
+      <h2>Mercedes-AMG W11</h2>
+      <p>Sistema DAS • Dominante en curvas</p>
+      <div class="row">
+        <span class="price">$320.000</span>
+        <button onclick="addToCart('Mercedes-AMG W11',320000)">Agregar</button>
+      </div>
+    </div>
+  </article>
+
+  <article class="card">
+    <img src="https://img.redbull.com/images/c_limit,w_1500,h_1000/f_auto,q_auto/redbullcom/2020/2/12/ku7roiyf89vfzz9o4c2r/aston-martin-red-bull-racing-rb16-presentacion"/>
+    <div class="content">
+      <h2>Red Bull RB16</h2>
+      <p>Alta carga trasera • Ágil en curvas</p>
+      <div class="row">
+        <span class="price">$305.000</span>
+        <button onclick="addToCart('Red Bull RB16',305000)">Agregar</button>
+      </div>
+    </div>
+  </article>
+
+  <article class="card">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtj9US78G187ioKqOP1O3czODujUsDbly0-g&s"/>
+    <div class="content">
+      <h2>kawasakizh2</h2>
+      <p>Alta carga trasera • Ágil en curvas</p>
+      <div class="row">
+        <span class="price">$99.305.000</span>
+        <button onclick="addToCart('Red Bull RB16',305000)">Agregar</button>
+      </div>
+    </div>
+  </article>
+
+  <article class="card">
+    <img src="https://img.redbull.com/images/c_limit,w_1500,h_1000/f_auto,q_auto/redbullcom/2020/2/12/ku7roiyf89vfzz9o4c2r/aston-martin-red-bull-racing-rb16-presentacion"/>
+    <div class="content">
+      <h2>Red Bull RB16</h2>
+      <p>Alta carga trasera • Ágil en curvas</p>
+      <div class="row">
+        <span class="price">$305.000</span>
+        <button onclick="addToCart('Red Bull RB16',305000)">Agregar</button>
+      </div>
+    </div>
+  </article>
+
+  <article class="card">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c7/2020_Formula_One_tests_Barcelona%2C_McLaren_MCL35%2C_Norris.jpg"/>
+    <div class="content">
+      <h2>McLaren MCL35</h2>
+      <p>Equilibrio aerodinámico • Consistente</p>
+      <div class="row">
+        <span class="price">$287.000</span>
+        <button onclick="addToCart('McLaren MCL35',287000)">Agregar</button>
+      </div>
+    </div>
+  </article>
+
+  <article class="card">
+    <img src="https://static.motor.es/fotos-noticias/2021/04/alonso-satisfecho-nuevas-piezas-alpine-a521-202177193-1618585929_1.jpg"/>
+    <div class="content">
+      <h2>Alpine A521</h2>
+      <p>Estabilidad en frenada • Buen equilibrio</p>
+      <div class="row">
+        <span class="price">$275.000</span>
+        <button onclick="addToCart('Alpine A521',275000)">Agregar</button>
+      </div>
+    </div>
+  </article>
+
+  <article class="card">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/5/5f/George_Russell_2020_Tuscan_Grand_Prix_-_race_day.jpg"/>
+    <div class="content">
+      <h2>Williams FW43</h2>
+      <p>Bajo drag • Velocidad en rectas</p>
+      <div class="row">
+        <span class="price">$249.000</span>
+        <button onclick="addToCart('Williams FW43',249000)">Agregar</button>
+      </div>
+    </div>
+  </article>
+
+</section>
+
+<!-- Botón flotante -->
+<div id="floatingCartBtn">
+  🛒 <span id="cartCount">0</span>
+</div>
+
+<!-- Carrito flotante -->
+<div id="floatingCart">
+  <h2>Carrito de Compras</h2>
+  <ul id="cartList"></ul>
+  <p id="cartTotal">Total: $0</p>
+
+  <button id="checkoutBtn" onclick="checkout()">Comprar</button>
+</div>
+
+<script>
+let cart = [];
+
+function addToCart(product, price) {
+  cart.push({ product, price });
+  updateCart();
+}
+
+function removeItem(index) {
+  cart.splice(index, 1);
+  updateCart();
+}
+
+function updateCart() {
+  const cartList = document.getElementById("cartList");
+  const cartCount = document.getElementById("cartCount");
+  const cartTotal = document.getElementById("cartTotal");
+
+  cartList.innerHTML = "";
+  let total = 0;
+
+  cart.forEach((item, i) => {
+    total += item.price;
+    cartList.innerHTML += `
+      <li>
+        ${item.product} - $${item.price}
+        <button onclick="removeItem(${i})">✖</button>
+      </li>`;
+  });
+
+  cartCount.textContent = cart.length;
+  cartTotal.textContent = "Total: $" + total;
+}
+
+// Abrir/cerrar carrito
+document.getElementById("floatingCartBtn").onclick = function () {
+  const panel = document.getElementById("floatingCart");
+  panel.style.right = panel.style.right === "0px" ? "-350px" : "0px";
+};
+
+
+function checkout() {
+  if (cart.length === 0) {
+    alert("Tu carrito está vacío.");
+    return;
+  }
+
+  let total = cart.reduce((sum, item) => sum + item.price, 0);
+
+  alert("Gracias por tu compra 🏎️💨\nTotal pagado: $" + total);
+
+  cart = [];  // Vaciar carrito
+  updateCart(); // Refrescar carrito
+}
+
+</script>
+
+</body>
+</html>

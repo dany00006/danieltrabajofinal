@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login y Carrito</title>
+  <style>
+  /* Estilos generales */
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f9;
+  margin: 0;
+  padding: 20px;
+  color: #ececec;
+}
+
+/* Formulario de login */
+#loginForm {
+  background: #b917178a;
+  padding: 20px;
+  max-width: 300px;
+  margin: 0 auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgb(255, 255, 255);
+}
+
+#loginForm h2 {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+#loginForm label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+#loginForm input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+#loginForm button {
+  width: 100%;
+  padding: 10px;
+  background: #c21414;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#loginForm button:hover {
+  background: #ff0303;
+}
+
+/* Tienda */
+#shop {
+  max-width: 600px;
+  margin: 30px auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+#shop h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Productos */
+.product {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px 0;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.product span {
+  font-size: 16px;
+}
+
+.product button {
+  padding: 6px 12px;
+  background: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.product button:hover {
+  background: #1976D2;
+}
+
+/* Carrito */
+.cart {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #a811118f;
+}
+
+.cart h3 {
+  margin-top: 0;
+}
+
+.cart ul {
+  list-style: none;
+  padding: 0;
+}
+
+.cart li {
+  padding: 5px 0;
+  border-bottom: 1px dashed #9622226c;
+}
+
+.cart p {
+  font-weight: bold;
+  text-align: right;
+
+}
+
+
+body {
+    /* Aquí va la URL de tu imagen */
+    background-image: url('https://www.grandepremio.com.br/wp-content/uploads/2025/02/CARRO-FERRARI2-2048x1152.jpg');
+    /* Para que la imagen ocupe toda la pantalla */
+    background-size: cover; /* 'cover' para que cubra el área */
+    background-repeat: no-repeat; /* No se repita */
+    background-position: center; /* Centrada */
+    background-attachment: fixed; /* Fija al hacer scroll */
+    /* Asegura que el cuerpo ocupe toda la altura de la ventana */
+    min-height: 100vh;
+    margin: 0;
+  }
+
+
+
+  </style>
+</head>
+<body>
+  <h2>Iniciar sesión</h2>
+  <form id="loginForm">
+    <label for="username">Usuario:</label>
+    <input type="text" id="username" required><br><br>
+    
+    <label for="password">Contraseña:</label>
+    <input type="password" id="password" required><br><br>
+    
+    <button type="submit">Entrar</button>
+  </form>
+
+  <div id="shop" style="display:none;">
+    <h2>Tienda</h2>
+    <div class="product">
+      <span>🍎 Manzana - $1</span>
+      <button onclick="addToCart('Manzana',1)">Agregar</button>
+    </div>
+    <div class="product">
+      <span>🍌 Banana - $2</span>
+      <button onclick="addToCart('Banana',2)">Agregar</button>
+    </div>
+    <div class="product">
+      <span>🍊 Naranja - $3</span>
+      <button onclick="addToCart('Naranja',3)">Agregar</button>
+    </div>
+
+    <div class="cart">
+      <h3>🛒 Carrito</h3>
+      <ul id="cartItems"></ul>
+      <p>Total: $<span id="total">0</span></p>
+    </div>
+  </div>
+
+  <script>
+    // Login básico
+    document.getElementById("loginForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+      const user = document.getElementById("username").value;
+      const pass = document.getElementById("password").value;
+
+      if(user === "admin" && pass === "1234"){
+        alert("Login exitoso");
+        document.getElementById("shop").style.display = "block";
+      } else {
+        alert("Usuario o contraseña incorrectos");
+      }
+    });
+
+    // Carrito
+    let cart = [];
+    function addToCart(product, price){
+      cart.push({product, price});
+      renderCart();
+    }
+
+    function renderCart(){
+      const cartItems = document.getElementById("cartItems");
+      cartItems.innerHTML = "";
+      let total = 0;
+      cart.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = `${item.product} - $${item.price}`;
+        cartItems.appendChild(li);
+        total += item.price;
+      });
+      document.getElementById("total").textContent = total;
+    }
+  </script>
+</body>
+</html>

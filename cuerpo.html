@@ -7,12 +7,50 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+ <script>
+    // Login básico
+    document.getElementById("loginForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+      const user = document.getElementById("username").value;
+      const pass = document.getElementById("password").value;
+
+      if(user === "admin" && pass === "1234"){
+        alert("Login exitoso");
+        document.getElementById("shop").style.display = "block";
+      } else {
+        alert("Usuario o contraseña incorrectos");
+      }
+    });
+
+    // Carrito
+    let cart = [];
+    function addToCart(product, price){
+      cart.push({product, price});
+      renderCart();
+    }
+
+    function renderCart(){
+      const cartItems = document.getElementById("cartItems");
+      cartItems.innerHTML = "";
+      let total = 0;
+      cart.forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = `${item.product} - $${item.price}`;
+        cartItems.appendChild(li);
+        total += item.price;
+      });
+      document.getElementById("total").textContent = total;
+    }
+  </script>
+
+
   <header>
      <img src="https://1000marcas.net/wp-content/uploads/2020/01/F1-Logo-2018.jpg" alt="Descripción de la imagen de ejemplo" width="200" height="125" style="float: left;">
     <h1>𓂀 ℭ𝔄ℜℜ𝔒𝔖 𝔇𝔈 𝔉𝔒ℜ𝔐𝔘𝔏𝔄 1 𓂀</h1>
     <nav>
       <ul>
-        <li><a href="#articulos">𝔄𝔯𝔱í𝔠𝔲𝔩𝔬𝔰</a></li>
+        <li><a href="articulos.html">𝔄𝔯𝔱í𝔠𝔲𝔩𝔬𝔰</a></li>
         <li><a href="#galeria">𝔊𝔞𝔩𝔢𝔯í𝔞</a></li>
         <li><a href="contacto.html">ℭ𝔬𝔫𝔱𝔞𝔠𝔱𝔬</a></li>
         <li><a href="pago.html">𝔭𝔞𝔤𝔬𝔰</a></li>

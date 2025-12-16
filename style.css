@@ -1,29 +1,118 @@
+/* =========================
+   ESTILOS GENERALES
+========================= */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
-  background-color: #111;
   color: #fff;
+
+  background-image: url('https://www.grandepremio.com.br/wp-content/uploads/2025/02/CARRO-FERRARI2-2048x1152.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed;
+  min-height: 100vh;
 }
 
+/* =========================
+   HEADER Y NAV
+========================= */
 header {
   background: rgb(116, 13, 13);
   padding: 20px;
   text-align: center;
+  position: relative;
+}
+
+header img {
+  float: left;
 }
 
 nav ul {
   list-style: none;
   padding: 0;
+  margin: 10px 0 0;
 }
 
 nav ul li {
-  display: inline;
+  display: inline-block;
   margin: 0 15px;
 }
 
 nav ul li a {
   color: white;
   text-decoration: none;
+  font-weight: bold;
+}
+
+nav ul li a:hover {
+  color: #ffcccc;
+}
+
+/* =========================
+   BOTÓN AJUSTES (☰)
+========================= */
+.btn-ajustes {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  font-size: 32px;
+  cursor: pointer;
+  color: white;
+  z-index: 9999;
+  user-select: none;
+}
+
+/* =========================
+   PANEL DE AJUSTES
+========================= */
+.panel-ajustes {
+  position: fixed;
+  top: 0;
+  right: -260px;
+  width: 260px;
+  height: 100%;
+  background: rgba(163, 43, 43, 0.127);
+  padding: 80px 20px;
+  transition: right 0.3s ease;
+  z-index: 9998;
+}
+
+.panel-ajustes.activo {
+  right: 0;
+}
+
+.panel-ajustes h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  text-align: center;
+  border-bottom: 1px solid #444;
+  padding-bottom: 10px;
+}
+
+.panel-ajustes button {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 10px;
+  background: rgb(116, 13, 13);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.panel-ajustes button:hover {
+  background: red;
+}
+
+/* =========================
+   ARTÍCULOS
+========================= */
+h2 {
+  text-align: center;
+  font-size: 2em;
+  margin-top: 40px;
 }
 
 .articulos-container {
@@ -34,15 +123,23 @@ nav ul li a {
 }
 
 article {
-  background: #2c0909c7;
+  background: rgba(44, 9, 9, 0.8);
   padding: 15px;
   border-radius: 8px;
-  
 }
 
+article img {
+  width: 100%;
+  border-radius: 8px;
+  margin-top: 10px;
+}
 
+/* =========================
+   GALERÍA
+========================= */
 .galeria-container {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: 15px;
   padding: 20px;
@@ -53,111 +150,34 @@ article {
   border-radius: 10px;
 }
 
- h2 {
-    text-align: center;
-     font-size: 2em;
-  }
-
-
-  footer {
+/* =========================
+   FOOTER
+========================= */
+footer {
   background: linear-gradient(135deg, #111, #333);
   color: #fff;
   padding: 40px 20px;
   text-align: center;
+  margin-top: 40px;
 }
 
-.footer-top h2 {
-  margin: 0;
-  font-size: 2em;
-  color: red;
+/* =========================
+   MODO OSCURO
+========================= */
+.dark-mode {
+  background-color: #0000002c;
+  color: #0b0101;
 }
 
-.footer-top p {
-  margin: 5px 0 20px;
-  font-style: italic;
-  color: #ccc;
-}
-
-.footer-content {
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
-}
-
-.footer-section {
-  max-width: 250px;
-  margin: 15px;
-}
-
-.footer-section h4 {
-  margin-bottom: 10px;
-  color: #ff4444;
-}
-
-.footer-section ul {
-  list-style: none;
-  padding: 0;
-}
-
-.footer-section ul li {
-  margin: 5px 0;
-}
-
-.footer-section a {
-  color: #fff;
-  text-decoration: none;
-}
-
-.footer-section a:hover {
-  color: red;
-}
-
-.footer-section form {
-  display: flex;
-  flex-direction: column;
-}
-
-.footer-section input {
-  padding: 8px;
-  border: none;
-  border-radius: 5px;
-  margin-bottom: 10px;
-}
-
-.footer-section button {
-  background: red;
-  color: #fff;
-  border: none;
-  padding: 8px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.footer-section button:hover {
-  background: #ff6666;
-}
-
-.social-links li {
-  margin: 5px 0;
-}
-
-.footer-bottom {
-  border-top: 1px solid #444;
-  padding-top: 10px;
-  font-size: 0.9em;
-  color: #aaa;
-}
-
- body {
-    /* Aquí va la URL de tu imagen */
-    background-image: url('https://www.grandepremio.com.br/wp-content/uploads/2025/02/CARRO-FERRARI2-2048x1152.jpg');
-    /* Para que la imagen ocupe toda la pantalla */
-    background-size: cover; /* 'cover' para que cubra el área */
-    background-repeat: no-repeat; /* No se repita */
-    background-position: center; /* Centrada */
-    background-attachment: fixed; /* Fija al hacer scroll */
-    /* Asegura que el cuerpo ocupe toda la altura de la ventana */
-    min-height: 100vh;
-    margin: 0;
+/* =========================
+   RESPONSIVE
+========================= */
+@media (max-width: 768px) {
+  .articulos-container {
+    grid-template-columns: 1fr;
   }
+
+  nav ul {
+    display: none;
+  }
+}

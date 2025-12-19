@@ -35,7 +35,7 @@ function enviarMensaje() {
   chat.innerHTML += `<div class="mensaje-user">${input.value}</div>`;
   input.value = "";
 
-  let respuesta = "No entiendo tu pregunta 🤔";
+  let respuesta = "No entiendo tu pregunta ";
 
   if (mensaje.includes("ferrari")) {
     respuesta = "Ferrari es uno de los equipos más históricos de la Fórmula 1 🟥";

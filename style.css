@@ -206,7 +206,7 @@ footer {
   height: 200px;
   padding: 10px;
   overflow-y: auto;
-  background: #f2f2f2;
+  background: #d92d2d6e;
 }
 
 #chatInput {
@@ -222,7 +222,7 @@ footer {
 
 #chatInput button {
   background: #d60000;
-  color: white;
+  color: rgb(255, 255, 255);
   border: none;
   padding: 8px 12px;
   cursor: pointer;

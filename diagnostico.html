@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagnóstico Supabase</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #4ec9b0;
+      border-bottom: 2px solid #007acc;
+      padding-bottom: 10px;
+    }
+    .test {
+      background: #252526;
+      padding: 15px;
+      margin: 10px 0;
+      border-left: 4px solid #007acc;
+      border-radius: 4px;
+    }
+    .success {
+      border-left-color: #4ec9b0;
+      color: #4ec9b0;
+    }
+    .error {
+      border-left-color: #f48771;
+      color: #f48771;
+    }
+    .warning {
+      border-left-color: #dcdcaa;
+      color: #dcdcaa;
+    }
+    .info {
+      border-left-color: #569cd6;
+      color: #569cd6;
+    }
+    code {
+      background: #1e1e1e;
+      padding: 2px 6px;
+      border-radius: 3px;
+      color: #ce9178;
+    }
+    button {
+      background: #007acc;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #0098ff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔧 Diagnóstico de Supabase</h1>
+    <div id="results"></div>
+    <button onclick="runDiagnostics()">Ejecutar Diagnóstico</button>
+  </div>
+
+  <!-- Cargar Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.umd.min.js"></script>
+  <script src="supabase.js"></script>
+
+  <script>
+    const resultsDiv = document.getElementById('results');
+
+    function addResult(title, status, message, details = '') {
+      const div = document.createElement('div');
+      div.className = `test ${status}`;
+      let icon = '';
+      if (status === 'success') icon = '✓';
+      if (status === 'error') icon = '✗';
+      if (status === 'warning') icon = '⚠';
+      if (status === 'info') icon = 'ℹ';
+      
+      div.innerHTML = `
+        <strong>${icon} ${title}</strong><br>
+        ${message}
+        ${details ? `<br><br><code>${details}</code>` : ''}
+      `;
+      resultsDiv.appendChild(div);
+    }
+
+    async function runDiagnostics() {
+      resultsDiv.innerHTML = '';
+      addResult('Iniciando diagnóstico...', 'info', 'Verificando configuración');
+
+      // 1. Verificar si Supabase está cargado
+      if (typeof window.supabase === 'undefined') {
+        addResult('Librería Supabase', 'error', 
+          'La librería de Supabase NO se cargó correctamente. Verifica que el CDN sea accesible.');
+        return;
+      }
+      addResult('Librería Supabase', 'success', 'Librería cargada correctamente');
+
+      // 2. Verificar si initSupabase existe
+      if (typeof window.initSupabase !== 'function') {
+        addResult('Función initSupabase', 'error', 
+          'La función initSupabase no está disponible. Verifica supabase.js');
+        return;
+      }
+      addResult('Función initSupabase', 'success', 'Función definida correctamente');
+
+      // 3. Verificar credenciales
+      const supabaseUrl = "https://wmeudjemclsofspwdpjd.supabase.co";
+      const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndtZXVkamVtY2xzb2ZzcHdkcGpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMDc3MzEsImV4cCI6MjA4MTY4MzczMX0.1mOU-nRfMCLUIP1AzOvAYMrKkG4GgqJItQ5pIcfE3_w";
+      
+      if (!supabaseUrl || !supabaseKey) {
+        addResult('Credenciales Supabase', 'error', 
+          'Falta la URL o la clave de Supabase');
+        return;
+      }
+      addResult('Credenciales Supabase', 'success', 
+        `URL: ${supabaseUrl}`, 
+        `Clave (primeros 50 caracteres): ${supabaseKey.substring(0, 50)}...`);
+
+      // 4. Intentar inicializar
+      try {
+        const initialized = window.initSupabase();
+        if (!initialized) {
+          addResult('Inicialización', 'error', 
+            'initSupabase() retornó false. Ver consola del navegador.');
+          return;
+        }
+        addResult('Inicialización', 'success', 'Cliente Supabase inicializado correctamente');
+      } catch (err) {
+        addResult('Inicialización', 'error', 
+          `Error al inicializar: ${err.message}`, err.stack);
+        return;
+      }
+
+      // 5. Verificar funciones globales
+      const funciones = ['obtenerUsuarioActual', 'iniciarSesion', 'registrarUsuario', 'verificarConexion'];
+      let allFunctionsOk = true;
+      for (const fn of funciones) {
+        if (typeof window[fn] === 'function') {
+          addResult(`Función ${fn}`, 'success', 'Disponible globalmente');
+        } else {
+          addResult(`Función ${fn}`, 'error', 'NO está disponible en window');
+          allFunctionsOk = false;
+        }
+      }
+
+      if (!allFunctionsOk) return;
+
+      // 6. Prueba de conexión
+      try {
+        addResult('Prueba de conexión', 'info', 'Intentando conectar a Supabase...');
+        const conexion = await window.verificarConexion();
+        
+        if (conexion.conectado) {
+          addResult('Prueba de conexión', 'success', 
+            '✓ Conectado a Supabase correctamente', JSON.stringify(conexion, null, 2));
+        } else {
+          addResult('Prueba de conexión', 'error', 
+            `Error: ${conexion.error}`, JSON.stringify(conexion, null, 2));
+        }
+      } catch (err) {
+        addResult('Prueba de conexión', 'error', 
+          `Excepción: ${err.message}`, err.stack);
+      }
+
+      // 7. Información del navegador
+      addResult('Información del navegador', 'info', 
+        `${navigator.userAgent}`, 
+        `Online: ${navigator.onLine}`);
+    }
+
+    // Auto-ejecutar al cargar
+    document.addEventListener('DOMContentLoaded', runDiagnostics);
+  </script>
+</body>
+</html>

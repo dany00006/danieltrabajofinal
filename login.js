@@ -2,10 +2,17 @@
 const loginForm = document.getElementById('loginForm');
 const registerForm = document.getElementById('registerForm');
 
+// Validar que los formularios existan
+if (!loginForm || !registerForm) {
+  console.error("⚠ Error: No se encontraron los formularios en el HTML");
+}
+
 // Función para alternar entre formularios
 function toggleForms() {
-  loginForm.classList.toggle('hidden');
-  registerForm.classList.toggle('hidden');
+  if (loginForm && registerForm) {
+    loginForm.classList.toggle('hidden');
+    registerForm.classList.toggle('hidden');
+  }
 }
 
 // Función para mostrar mensajes
@@ -13,42 +20,42 @@ function showError(formType, message) {
   const errorElement = document.getElementById(`${formType}Error`);
   const successElement = document.getElementById(`${formType}Success`);
   const loadingElement = document.getElementById(`${formType}Loading`);
-  
-  errorElement.textContent = message;
-  errorElement.classList.add('show');
-  successElement.classList.remove('show');
-  loadingElement.classList.remove('show');
+  if (errorElement) {
+    errorElement.textContent = message;
+    errorElement.classList.add('show');
+  }
+  if (successElement) successElement.classList.remove('show');
+  if (loadingElement) loadingElement.classList.remove('show');
 }
 
 function showSuccess(formType, message) {
   const errorElement = document.getElementById(`${formType}Error`);
   const successElement = document.getElementById(`${formType}Success`);
   const loadingElement = document.getElementById(`${formType}Loading`);
-  
-  successElement.textContent = message;
-  successElement.classList.add('show');
-  errorElement.classList.remove('show');
-  loadingElement.classList.remove('show');
+  if (successElement) {
+    successElement.textContent = message;
+    successElement.classList.add('show');
+  }
+  if (errorElement) errorElement.classList.remove('show');
+  if (loadingElement) loadingElement.classList.remove('show');
 }
 
 function showLoading(formType) {
   const loadingElement = document.getElementById(`${formType}Loading`);
   const errorElement = document.getElementById(`${formType}Error`);
   const successElement = document.getElementById(`${formType}Success`);
-  
-  loadingElement.classList.add('show');
-  errorElement.classList.remove('show');
-  successElement.classList.remove('show');
+  if (loadingElement) loadingElement.classList.add('show');
+  if (errorElement) errorElement.classList.remove('show');
+  if (successElement) successElement.classList.remove('show');
 }
 
 function hideMessages(formType) {
   const errorElement = document.getElementById(`${formType}Error`);
   const successElement = document.getElementById(`${formType}Success`);
   const loadingElement = document.getElementById(`${formType}Loading`);
-  
-  errorElement.classList.remove('show');
-  successElement.classList.remove('show');
-  loadingElement.classList.remove('show');
+  if (errorElement) errorElement.classList.remove('show');
+  if (successElement) successElement.classList.remove('show');
+  if (loadingElement) loadingElement.classList.remove('show');
 }
 
 // Mostrar estado de conexión en la consola

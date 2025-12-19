@@ -2,28 +2,90 @@
 const supabaseUrl = "https://wmeudjemclsofspwdpjd.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndtZXVkamVtY2xzb2ZzcHdkcGpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYxMDc3MzEsImV4cCI6MjA4MTY4MzczMX0.1mOU-nRfMCLUIP1AzOvAYMrKkG4GgqJItQ5pIcfE3_w";
 
-// Variable global para el cliente
-let supabase = null;
+// Variable global para el cliente (evitar declarar `supabase` porque lo usa la UMD)
+let supabaseClient = null;
+let supabaseReady = false;
+
+// Intentar cargar dinámicamente el UMD de Supabase si no está presente
+function loadSupabaseUmd(src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.umd.min.js') {
+  return new Promise((resolve, reject) => {
+    if (typeof window === 'undefined') return reject(new Error('No window object'));
+    if (typeof window.supabase !== 'undefined') return resolve(true);
+
+    const existing = Array.from(document.getElementsByTagName('script')).find(s => s.src && s.src.includes('supabase') );
+    if (existing) {
+      // si hay un script con supabase en el src, esperar a que cargue
+      existing.addEventListener('load', () => resolve(true));
+      existing.addEventListener('error', () => reject(new Error('Error cargando script existente')));
+      return;
+    }
+
+    const s = document.createElement('script');
+    s.src = src;
+    s.async = true;
+    s.onload = () => resolve(true);
+    s.onerror = () => reject(new Error('Error cargando UMD de Supabase desde CDN'));
+    document.head.appendChild(s);
+  });
+}
+
+// Función para esperar a que la librería de Supabase esté disponible
+async function waitForSupabase(maxWait = 15000) {
+  const startTime = Date.now();
+
+  // Si no existe, intentamos cargarla dinámicamente una vez
+  if (typeof window.supabase === 'undefined') {
+    try {
+      await loadSupabaseUmd();
+    } catch (err) {
+      console.warn('No se pudo cargar automáticamente el UMD:', err.message);
+      // seguiremos esperando por si el script se carga por otro medio
+    }
+  }
+
+  while (typeof window.supabase === 'undefined') {
+    if (Date.now() - startTime > maxWait) {
+      console.error('❌ Timeout: La librería de Supabase no se cargó en', maxWait, 'ms');
+      return false;
+    }
+    // pequeños intervalos para evitar bloquear el hilo
+    await new Promise(resolve => setTimeout(resolve, 200));
+  }
+
+  console.log('✓ Librería de Supabase detectada');
+  return true;
+}
 
 // Helper: asegurar que el cliente está inicializado
-function ensureClient() {
-  if (supabase) return true;
-  // Intentar inicializar (si la librería UMD ya expone window.supabase)
-  const ok = initSupabase();
-  return !!ok && !!supabase;
+async function ensureClient() {
+  if (supabaseClient) return true;
+  
+  // Esperar a que Supabase esté listo
+  if (!supabaseReady) {
+    const ready = await waitForSupabase();
+    if (!ready) return false;
+  }
+  
+  // Intentar inicializar
+  const ok = await initSupabase();
+  return !!ok && !!supabaseClient;
 }
 
 // Función para inicializar Supabase
-function initSupabase() {
-  if (supabase) return; // Ya está inicializado
+async function initSupabase() {
+  if (supabaseClient) return true; // Ya está inicializado
   
-  if (typeof window.supabase === 'undefined') {
-    console.error("❌ Error: La librería de Supabase no se ha cargado");
+  // Esperar a que la librería esté disponible
+  const ready = await waitForSupabase();
+  if (!ready) {
     return false;
   }
   
   try {
-    supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+    supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+    // También exponemos una referencia al cliente
+    window.supabaseClient = supabaseClient;
+    supabaseReady = true;
     console.log("✓ Cliente Supabase inicializado correctamente");
     return true;
   } catch (error) {
@@ -32,12 +94,16 @@ function initSupabase() {
   }
 }
 
-// Esperar a que el DOM y la librería estén listas, intentar cargar UMD si es necesario
-// Inicializar Supabase cuando el DOM esté listo si la librería ya está cargada.
+// Inicializar Supabase cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', async () => {
-  const initialized = initSupabase();
+  console.log("Iniciando carga de Supabase...");
+  
+  const initialized = await initSupabase();
   if (!initialized) {
-    console.warn('La librería de Supabase no está disponible en esta página. Asegúrate de incluir el script CDN UMD o cargar la librería antes de `supabase.js`.');
+    console.warn('⚠ La librería de Supabase no pudo inicializarse. Verifica:');
+    console.warn('  1. Que el script CDN se haya cargado correctamente');
+    console.warn('  2. Que no haya errores de CORS');
+    console.warn('  3. Que tu conexión a internet sea estable');
     return;
   }
 
@@ -64,12 +130,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Función para registrar usuario
 async function registrarUsuario(email, password) {
-  if (!ensureClient()) {
-    return { success: false, message: "Supabase no está inicializado. Asegúrate de incluir la librería UMD de Supabase antes de `supabase.js` y recarga la página." };
+  if (!await ensureClient()) {
+    return { success: false, message: "Supabase no está inicializado. Por favor recarga la página." };
   }
   
   try {
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await supabaseClient.auth.signUp({
       email: email,
       password: password,
     });
@@ -89,12 +155,12 @@ async function registrarUsuario(email, password) {
 
 // Función para iniciar sesión
 async function iniciarSesion(email, password) {
-  if (!ensureClient()) {
-    return { success: false, message: "Supabase no está inicializado. Asegúrate de incluir la librería UMD de Supabase antes de `supabase.js` y recarga la página." };
+  if (!await ensureClient()) {
+    return { success: false, message: "Supabase no está inicializado. Por favor recarga la página." };
   }
   
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
       email: email,
       password: password,
     });
@@ -114,12 +180,12 @@ async function iniciarSesion(email, password) {
 
 // Función para cerrar sesión
 async function cerrarSesion() {
-  if (!ensureClient()) {
+  if (!await ensureClient()) {
     return { success: false, message: "Supabase no está inicializado" };
   }
   
   try {
-    const { error } = await supabase.auth.signOut();
+    const { error } = await supabaseClient.auth.signOut();
     
     if (error) {
       console.error("Error al cerrar sesión:", error.message);
@@ -136,12 +202,12 @@ async function cerrarSesion() {
 
 // Función para verificar la conexión con Supabase
 async function verificarConexion() {
-  if (!ensureClient()) {
+  if (!await ensureClient()) {
     return { conectado: false, error: "Supabase no está inicializado" };
   }
   
   try {
-    const { data, error } = await supabase.auth.getSession();
+    const { data, error } = await supabaseClient.auth.getSession();
     
     if (error) {
       console.error("Error al verificar conexión:", error.message);
@@ -157,8 +223,35 @@ async function verificarConexion() {
 }
 
 // Función para obtener el usuario actual
+// Función para obtener el usuario actual
 async function obtenerUsuarioActual() {
-  if (!ensureClient()) {
+  if (!await ensureClient()) {
+    return { logueado: false, usuario: null };
+  }
+  
+  try {
+    const { data: { user }, error } = await supabaseClient.auth.getUser();
+    
+    if (error) {
+      console.error("Error al obtener usuario:", error.message);
+      return { logueado: false, usuario: null };
+    }
+    
+    if (user) {
+      console.log("Usuario actual:", user.email);
+      return { logueado: true, usuario: user };
+    }
+    
+    return { logueado: false, usuario: null };
+  } catch (err) {
+    console.error("Error en obtenerUsuarioActual:", err);
+    return { logueado: false, usuario: null };
+  }
+}
+
+// Función para obtener el usuario actual
+async function obtenerUsuarioActual() {
+  if (!await ensureClient()) {
     return { logueado: false, usuario: null };
   }
   
@@ -182,17 +275,15 @@ async function obtenerUsuarioActual() {
   }
 }
 
-// (La verificación se hace automáticamente después de la inicialización en waitAndInit)
-
 // Función para obtener artículos de la base de datos
 async function obtenerArticulos() {
-  if (!ensureClient()) {
+  if (!await ensureClient()) {
     console.error("Supabase no está inicializado");
     return [];
   }
   
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
       .from('articulos')
       .select('*');
     
@@ -210,12 +301,12 @@ async function obtenerArticulos() {
 
 // Función para agregar artículo al carrito
 async function agregarAlCarrito(usuarioId, articuloId, cantidad = 1) {
-  if (!ensureClient()) {
+  if (!await ensureClient()) {
     return { success: false, message: "Supabase no está inicializado" };
   }
   
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
       .from('carrito')
       .insert([
         {
@@ -239,12 +330,12 @@ async function agregarAlCarrito(usuarioId, articuloId, cantidad = 1) {
 
 // Función para obtener carrito del usuario
 async function obtenerCarrito(usuarioId) {
-  if (!ensureClient()) {
+  if (!await ensureClient()) {
     return [];
   }
   
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
       .from('carrito')
       .select(`
         *,
@@ -266,12 +357,12 @@ async function obtenerCarrito(usuarioId) {
 
 // Función para crear un pedido
 async function crearPedido(usuarioId, total) {
-  if (!ensureClient()) {
+  if (!await ensureClient()) {
     return { success: false, message: "Supabase no está inicializado" };
   }
   
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
       .from('pedidos')
       .insert([
         {
@@ -295,6 +386,7 @@ async function crearPedido(usuarioId, total) {
 
 // Exponer funciones globalmente para que otros scripts las puedan usar
 window.initSupabase = initSupabase;
+window.ensureClient = ensureClient;
 window.registrarUsuario = registrarUsuario;
 window.iniciarSesion = iniciarSesion;
 window.cerrarSesion = cerrarSesion;
@@ -304,3 +396,6 @@ window.obtenerArticulos = obtenerArticulos;
 window.agregarAlCarrito = agregarAlCarrito;
 window.obtenerCarrito = obtenerCarrito;
 window.crearPedido = crearPedido;
+
+// Para compatibilidad, también exponemos el cliente si ya está inicializado
+if (supabaseClient) window.supabaseClient = supabaseClient;

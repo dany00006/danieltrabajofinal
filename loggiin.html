@@ -1,217 +1,239 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <title>Login y Carrito</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Autenticación - Carros F1</title>
   <style>
-  /* Estilos generales */
-body {
-  font-family: Arial, sans-serif;
-  background: #f4f4f9;
-  margin: 0;
-  padding: 20px;
-  color: #ececec;
-}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-/* Formulario de login */
-#loginForm {
-  background: #b917178a;
-  padding: 20px;
-  max-width: 300px;
-  margin: 0 auto;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgb(255, 255, 255);
-}
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
 
-#loginForm h2 {
-  text-align: center;
-  margin-bottom: 15px;
-}
+    .auth-container {
+      width: 100%;
+      max-width: 400px;
+    }
 
-#loginForm label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
+    .auth-form {
+      background: white;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      animation: slideIn 0.3s ease;
+    }
 
-#loginForm input {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 15px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
-#loginForm button {
-  width: 100%;
-  padding: 10px;
-  background: #c21414;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
+    .auth-form h2 {
+      text-align: center;
+      color: #667eea;
+      margin-bottom: 30px;
+      font-size: 28px;
+    }
 
-#loginForm button:hover {
-  background: #ff0303;
-}
+    .form-group {
+      margin-bottom: 20px;
+    }
 
-/* Tienda */
-#shop {
-  max-width: 600px;
-  margin: 30px auto;
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 600;
+      font-size: 14px;
+    }
 
-#shop h2 {
-  text-align: center;
-  margin-bottom: 20px;
-}
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
 
-/* Productos */
-.product {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 10px 0;
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-}
+    .form-group input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
 
-.product span {
-  font-size: 16px;
-}
+    .form-group input::placeholder {
+      color: #999;
+    }
 
-.product button {
-  padding: 6px 12px;
-  background: #2196F3;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
+    .btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
 
-.product button:hover {
-  background: #1976D2;
-}
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
 
-/* Carrito */
-.cart {
-  margin-top: 20px;
-  padding: 15px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  background: #a811118f;
-}
+    .btn:active {
+      transform: translateY(0);
+    }
 
-.cart h3 {
-  margin-top: 0;
-}
+    .toggle-link {
+      text-align: center;
+      margin-top: 20px;
+      color: #666;
+      font-size: 14px;
+    }
 
-.cart ul {
-  list-style: none;
-  padding: 0;
-}
+    .toggle-link a {
+      color: #667eea;
+      cursor: pointer;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
 
-.cart li {
-  padding: 5px 0;
-  border-bottom: 1px dashed #9622226c;
-}
+    .toggle-link a:hover {
+      color: #764ba2;
+      text-decoration: underline;
+    }
 
-.cart p {
-  font-weight: bold;
-  text-align: right;
+    .hidden {
+      display: none !important;
+    }
 
-}
+    .error-message {
+      background: #fee;
+      border: 1px solid #fcc;
+      color: #c33;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      display: none;
+    }
 
+    .error-message.show {
+      display: block;
+    }
 
-body {
-    /* Aquí va la URL de tu imagen */
-    background-image: url('https://www.grandepremio.com.br/wp-content/uploads/2025/02/CARRO-FERRARI2-2048x1152.jpg');
-    /* Para que la imagen ocupe toda la pantalla */
-    background-size: cover; /* 'cover' para que cubra el área */
-    background-repeat: no-repeat; /* No se repita */
-    background-position: center; /* Centrada */
-    background-attachment: fixed; /* Fija al hacer scroll */
-    /* Asegura que el cuerpo ocupe toda la altura de la ventana */
-    min-height: 100vh;
-    margin: 0;
-  }
+    .success-message {
+      background: #efe;
+      border: 1px solid #cfc;
+      color: #3c3;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      display: none;
+    }
 
+    .success-message.show {
+      display: block;
+    }
 
+    .loading {
+      display: none;
+      text-align: center;
+      color: #667eea;
+      font-size: 14px;
+      margin: 10px 0;
+    }
 
+    .loading.show {
+      display: block;
+    }
   </style>
 </head>
 <body>
-  <h2>Iniciar sesión</h2>
-  <form id="loginForm">
-    <label for="username">Usuario:</label>
-    <input type="text" id="username" required><br><br>
-    
-    <label for="password">Contraseña:</label>
-    <input type="password" id="password" required><br><br>
-    
-    <button type="submit">Entrar</button>
-  </form>
+  <div class="auth-container">
+    <!-- Formulario de Login -->
+    <form id="loginForm" class="auth-form">
+      <h2>🏎️ Iniciar Sesión</h2>
+      <div class="error-message" id="loginError"></div>
+      <div class="success-message" id="loginSuccess"></div>
+      <div class="loading" id="loginLoading">Procesando...</div>
 
-  <div id="shop" style="display:none;">
-    <h2>Tienda</h2>
-    <div class="product">
-      <span>🍎 Manzana - $1</span>
-      <button onclick="addToCart('Manzana',1)">Agregar</button>
-    </div>
-    <div class="product">
-      <span>🍌 Banana - $2</span>
-      <button onclick="addToCart('Banana',2)">Agregar</button>
-    </div>
-    <div class="product">
-      <span>🍊 Naranja - $3</span>
-      <button onclick="addToCart('Naranja',3)">Agregar</button>
-    </div>
+      <div class="form-group">
+        <label for="loginEmail">Correo electrónico</label>
+        <input type="email" id="loginEmail" required placeholder="tu@email.com">
+      </div>
 
-    <div class="cart">
-      <h3>🛒 Carrito</h3>
-      <ul id="cartItems"></ul>
-      <p>Total: $<span id="total">0</span></p>
-    </div>
+      <div class="form-group">
+        <label for="loginPassword">Contraseña</label>
+        <input type="password" id="loginPassword" required placeholder="••••••••">
+      </div>
+
+      <button type="submit" class="btn">Entrar</button>
+
+      <div class="toggle-link">
+        ¿No tienes cuenta? <a onclick="toggleForms()">Crea una aquí</a>
+      </div>
+    </form>
+
+    <!-- Formulario de Registro -->
+    <form id="registerForm" class="auth-form hidden">
+      <h2>🏎️ Crear Cuenta</h2>
+      <div class="error-message" id="registerError"></div>
+      <div class="success-message" id="registerSuccess"></div>
+      <div class="loading" id="registerLoading">Procesando...</div>
+
+      <div class="form-group">
+        <label for="registerEmail">Correo electrónico</label>
+        <input type="email" id="registerEmail" required placeholder="tu@email.com">
+      </div>
+
+      <div class="form-group">
+        <label for="registerPassword">Contraseña</label>
+        <input type="password" id="registerPassword" required placeholder="Mínimo 6 caracteres">
+      </div>
+
+      <div class="form-group">
+        <label for="registerPasswordConfirm">Confirmar Contraseña</label>
+        <input type="password" id="registerPasswordConfirm" required placeholder="Repite tu contraseña">
+      </div>
+
+      <button type="submit" class="btn">Crear Cuenta</button>
+
+      <div class="toggle-link">
+        ¿Ya tienes cuenta? <a onclick="toggleForms()">Inicia sesión aquí</a>
+      </div>
+    </form>
   </div>
 
-  <script>
-    // Login básico
-    document.getElementById("loginForm").addEventListener("submit", function(event) {
-      event.preventDefault();
-      const user = document.getElementById("username").value;
-      const pass = document.getElementById("password").value;
-
-      if(user === "admin" && pass === "1234"){
-        alert("Login exitoso");
-        document.getElementById("shop").style.display = "block";
-      } else {
-        alert("Usuario o contraseña incorrectos");
-      }
-    });
-
-    // Carrito
-    let cart = [];
-    function addToCart(product, price){
-      cart.push({product, price});
-      renderCart();
-    }
-
-    function renderCart(){
-      const cartItems = document.getElementById("cartItems");
-      cartItems.innerHTML = "";
-      let total = 0;
-      cart.forEach(item => {
-        const li = document.createElement("li");
-        li.textContent = `${item.product} - $${item.price}`;
-        cartItems.appendChild(li);
-        total += item.price;
-      });
-      document.getElementById("total").textContent = total;
-    }
-  </script>
+  <!-- Agregar la librería de Supabase desde CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.umd.min.js"></script>
+  
+  <!-- Agregar el archivo de configuración de Supabase -->
+  <script src="supabase.js"></script>
+  
+  <!-- Agregar el archivo de login -->
+  <script src="login.js"></script>
 </body>
 </html>

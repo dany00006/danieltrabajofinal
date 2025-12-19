@@ -341,12 +341,64 @@ body {
   <button id="checkoutBtn" onclick="checkout()">Comprar</button>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script src="login.js"></script>
+
 <script>
 let cart = [];
+let usuarioLogueado = null;
 
-function addToCart(product, price) {
+// Verificar sesión al cargar
+document.addEventListener('DOMContentLoaded', async () => {
+  console.log("Verificando sesión...");
+  
+  // Esperar a que Supabase esté inicializado
+  let intentos = 0;
+  while (!supabase && intentos < 10) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    intentos++;
+  }
+  
+  if (!supabase) {
+    console.error("❌ Supabase no se inicializó. Redirigiendo al login...");
+    alert("Error de conexión con Supabase. Por favor recarga la página.");
+    window.location.href = "loggiin.html";
+    return;
+  }
+  
+  const usuario = await obtenerUsuarioActual();
+  
+  if (usuario.logueado) {
+    usuarioLogueado = usuario.usuario;
+    console.log("✓ Usuario logueado:", usuario.usuario.email);
+    // Cargar carrito del usuario
+    await cargarCarritoDelUsuario();
+  } else {
+    console.warn("⚠ No hay sesión activa. Redirigiendo al login...");
+    // Redirigir al login después de 2 segundos
+    setTimeout(() => {
+      alert("Debes iniciar sesión para acceder");
+      window.location.href = "loggiin.html";
+    }, 1000);
+  }
+});
+
+async function cargarCarritoDelUsuario() {
+  if (!usuarioLogueado) return;
+  const carrito = await obtenerCarrito(usuarioLogueado.id);
+  console.log("Carrito del usuario:", carrito);
+}
+
+async function addToCart(product, price) {
+  if (!usuarioLogueado) {
+    alert("Debes iniciar sesión");
+    return;
+  }
+  
   cart.push({ product, price });
   updateCart();
+  console.log("Artículo agregado al carrito:", product);
 }
 
 function removeItem(index) {
@@ -372,36 +424,40 @@ function updateCart() {
   });
 
   cartCount.textContent = cart.length;
-  cartTotal.textContent = "Total: $" + total;
+  cartTotal.textContent = "Total: $" + total.toFixed(2);
 }
 
 // Abrir/cerrar carrito
-document.getElementById("floatingCartBtn").onclick = function () {
+document.getElementById("floatingCartBtn").addEventListener('click', function () {
   const panel = document.getElementById("floatingCart");
   panel.style.right = panel.style.right === "0px" ? "-350px" : "0px";
-};
+});
 
-
-function checkout() {
+async function checkout() {
   if (cart.length === 0) {
     alert("Tu carrito está vacío.");
     return;
   }
 
+  if (!usuarioLogueado) {
+    alert("Debes iniciar sesión para comprar");
+    return;
+  }
+
   let total = cart.reduce((sum, item) => sum + item.price, 0);
-
-  alert("Gracias por tu compra 🏎️💨\nTotal pagado: $" + total);
-
-  cart = [];  // Vaciar carrito
-  updateCart(); // Refrescar carrito
+  
+  // Guardar pedido en Supabase
+  const resultado = await crearPedido(usuarioLogueado.id, total);
+  
+  if (resultado.success) {
+    alert("✓ Compra realizada exitosamente\nTotal: $" + total.toFixed(2));
+    cart = [];
+    updateCart();
+  } else {
+    alert("Error al procesar la compra: " + resultado.message);
+  }
 }
-
 </script>
-
-
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase.js"></script>
 
 
 </body>
